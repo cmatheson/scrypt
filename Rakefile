@@ -23,11 +23,12 @@ end
 
 desc "FFI compiler"
 namespace "ffi-compiler" do
+  host_os = RbConfig::CONFIG["host_os"].downcase
   FFI::Compiler::CompileTask.new('ext/scrypt/scrypt_ext') do |t|
-    t.cflags << "-Wall -std=c99"
+    t.cflags << "-Wall -std=#{host_os =~ /linux/ ? "gnu99" : "c99"}"
     t.cflags << "-msse -msse2" if t.platform.arch.include? "86"
-    t.cflags << "-D_GNU_SOURCE=1" if RbConfig::CONFIG["host_os"].downcase =~ /mingw/
-    t.cflags << "-D__need_timespec" if RbConfig::CONFIG['host_os'].downcase =~ /linux/
+    t.cflags << "-D_GNU_SOURCE=1" if host_os =~ /mingw/
+    t.cflags << "-D__need_timespec" if host_os =~ /linux/
     t.cflags << "-arch x86_64 -arch i386" if t.platform.mac?
     t.ldflags << "-arch x86_64 -arch i386" if t.platform.mac?
 
